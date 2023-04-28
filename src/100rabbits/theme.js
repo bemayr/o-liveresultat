@@ -4,8 +4,6 @@
 /* global FileReader */
 /* global DOMParser */
 
-console.log('100 🐇')
-
 function Theme(client) {
   this.el = document.createElement('style')
   this.el.type = 'text/css'
