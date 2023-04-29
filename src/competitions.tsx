@@ -1,93 +1,61 @@
 import { Fragment, h } from 'preact'
-import { useEffect } from 'preact/hooks'
-import { Link } from 'preact-router/match'
+import { Link } from 'react-router-dom'
 import { Loader } from './_components/loader'
-import {
-  competitions,
-  loadCompetitions,
-  Competition,
-  Competitions as CompetitionsType,
-} from './api'
-import { useSignalEffect } from '@preact/signals'
-import { fold } from '@devexperts/remote-data-ts'
+import { Competition, getCompetitions } from './api'
+import { useQuery, QueryClient } from '@tanstack/react-query'
 import './competitions.css'
 
-export function Competitions(props: any & { path: string }) {
-  useSignalEffect(() => {
-    console.log(competitions.value)
-  })
+const contactDetailQuery = () => ({
+  queryKey: ['competitions'],
+  queryFn: async () => await getCompetitions(),
+})
 
-  // incoroparet all of those:
-  // https://tkdodo.eu/blog/react-query-meets-react-router
-  // https://reactrouter.com/en/main/start/overview#skeleton-ui-with-suspense
-  // https://tanstack.com/
+export const loader = (queryClient: QueryClient) => () =>
+  queryClient.ensureQueryData(contactDetailQuery())
 
-  useEffect(() => {
-    ;(async () => await loadCompetitions())()
-  }, [])
+export function Competitions(): h.JSX.Element {
+  const {
+    data: competitions,
+    isLoading,
+    error,
+  } = useQuery(contactDetailQuery())
+
+  /* Tabs: https://codepen.io/Wendy-Ho/pen/MWWBvmd?editors=1100 */
+  /* Lists: https://codepen.io/chriscoyier/pen/gOxgYxO */
+
+  if (isLoading) return <Loader />
+
+  if (error) return <>'An error has occurred: ' + error.message</>
 
   return (
     <Fragment>
-      <h1>Events</h1>
-
-      {/* Tabs: https://codepen.io/Wendy-Ho/pen/MWWBvmd?editors=1100 */}
-      {/* Lists: https://codepen.io/chriscoyier/pen/gOxgYxO */}
-
-      {fold<string, CompetitionsType, any>(
-        () => <Loader />,
-        () => <Loader />,
-        (err) => <p>{JSON.stringify(err)}</p>,
-        (data) => (
-          <Fragment>
-            <div class="wrapper">
-              <input class="radio" id="past" name="group" type="radio" />
-              <input
-                class="radio"
-                id="today"
-                name="group"
-                type="radio"
-                checked
-              />
-              <input class="radio" id="future" name="group" type="radio" />
-              <div class="tabs">
-                <label class="tab" id="past-tab" for="past">
-                  Past
-                </label>
-                <label class="tab" id="today-tab" for="today">
-                  Today
-                </label>
-                <label class="tab" id="future-tab" for="future">
-                  Future
-                </label>
-              </div>
-              <div class="panels">
-                <div class="panel" id="past-panel">
-                  <ByDate competitions={data.past} />
-                </div>
-                <div class="panel" id="today-panel">
-                  <Today competitions={data.today} />
-                </div>
-                <div class="panel" id="future-panel">
-                  <ByDate competitions={data.future} />
-                </div>
-              </div>
-            </div>
-          </Fragment>
-        )
-      )(competitions.value)}
-
-      {/* <ul>
-        {competitions.value.foldL?.today &&
-          competitions.today.map((competition) => (
-            <li key={competition.id}>
-              <Link class="fh" href={'/event/' + competition.id}>
-                {competition.name}
-              </Link>
-              <div class="fm">{competition.organizer}</div>
-              <div class="fl">{competition.date.toLocaleDateString()}</div>
-            </li>
-          ))}
-      </ul> */}
+      <div class="wrapper">
+        <input class="radio" id="past" name="group" type="radio" />
+        <input class="radio" id="today" name="group" type="radio" checked />
+        <input class="radio" id="future" name="group" type="radio" />
+        <div class="tabs">
+          <label class="tab" id="past-tab" for="past">
+            Past
+          </label>
+          <label class="tab" id="today-tab" for="today">
+            Today
+          </label>
+          <label class="tab" id="future-tab" for="future">
+            Future
+          </label>
+        </div>
+        <div class="panels">
+          <div class="panel" id="past-panel">
+            <ByDate competitions={competitions!.past} />
+          </div>
+          <div class="panel" id="today-panel">
+            <Today competitions={competitions!.today} />
+          </div>
+          <div class="panel" id="future-panel">
+            <ByDate competitions={competitions!.future} />
+          </div>
+        </div>
+      </div>
     </Fragment>
   )
 }
@@ -100,7 +68,7 @@ function Today({ competitions }: TodayProps) {
     <ul>
       {competitions.map((competition) => (
         <li key={competition.id}>
-          <Link class="fh" href={'/event/' + competition.id}>
+          <Link class="fh" to={`/events/${competition.id}`}>
             {competition.name}
           </Link>
           <div class="fm">{competition.organizer}</div>
@@ -122,7 +90,7 @@ function ByDate({ competitions }: ByDateProps) {
           <ul>
             {competitions.map((competition) => (
               <li key={competition.id}>
-                <Link class="fh" href={'/event/' + competition.id}>
+                <Link class="fh" to={`/events/${competition.id}`}>
                   {competition.name}
                 </Link>
                 <div class="fm">{competition.organizer}</div>

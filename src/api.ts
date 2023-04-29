@@ -62,6 +62,33 @@ export const loadCompetitions = () =>
     return result
   })
 
+export const getCompetitions = () =>
+  fetch(`${BASE_URL}getcompetitions`)
+    .then((response) => response.json())
+    .then((data) => {
+      const today = new Date().setHours(0, 0, 0, 0)
+      const result: Competitions = {
+        past: new Map<number, Array<Competition>>(),
+        today: new Array<Competition>(),
+        future: new Map<number, Array<Competition>>(),
+      }
+      for (const competition of data.competitions) {
+        const date = new Date(competition.date).setHours(0, 0, 0, 0)
+        if (date < today) {
+          if (!result.past.has(date))
+            result.past.set(date, new Array<Competition>())
+          result.past.get(date)?.push(competition)
+        }
+        if (date === today) result.today.push(competition)
+        if (date > today) {
+          if (!result.future.has(date))
+            result.future.set(date, new Array<Competition>())
+          result.future.get(date)?.push(competition)
+        }
+      }
+      return result
+    })
+
 export type CompetitionInfo = {
   id: number
   name: string
