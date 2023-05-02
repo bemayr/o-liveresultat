@@ -3,7 +3,11 @@ import { useLayoutEffect } from 'preact/hooks'
 import { initializeTheme } from './theme'
 import { Competitions, loader as competitionsLoader } from './competitions'
 import { Competition, loader as competitionLoader } from './competition'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  RouterProvider,
+  ScrollRestoration,
+} from 'react-router-dom'
 import Root from './root'
 import ErrorPage from './error-page'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'

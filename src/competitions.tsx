@@ -4,6 +4,7 @@ import { Loader } from './_components/loader'
 import { Competition, getCompetitions } from './api'
 import { useQuery, QueryClient } from '@tanstack/react-query'
 import './competitions.css'
+import { signal } from '@preact/signals'
 
 const contactDetailQuery = () => ({
   queryKey: ['competitions'],
@@ -12,6 +13,13 @@ const contactDetailQuery = () => ({
 
 export const loader = (queryClient: QueryClient) => () =>
   queryClient.ensureQueryData(contactDetailQuery())
+
+const visibleEvents = signal('today')
+const setVisibleEventType = (
+  event: h.JSX.TargetedEvent<HTMLInputElement, Event>
+) => {
+  visibleEvents.value = event.currentTarget.id
+}
 
 export function Competitions(): h.JSX.Element {
   const {
@@ -30,9 +38,30 @@ export function Competitions(): h.JSX.Element {
   return (
     <Fragment>
       <div class="wrapper">
-        <input class="radio" id="past" name="group" type="radio" />
-        <input class="radio" id="today" name="group" type="radio" checked />
-        <input class="radio" id="future" name="group" type="radio" />
+        <input
+          class="radio"
+          id="past"
+          name="group"
+          type="radio"
+          onChange={setVisibleEventType}
+          checked={visibleEvents.value === 'past'}
+        />
+        <input
+          class="radio"
+          id="today"
+          name="group"
+          type="radio"
+          onChange={setVisibleEventType}
+          checked={visibleEvents.value === 'today'}
+        />
+        <input
+          class="radio"
+          id="future"
+          name="group"
+          type="radio"
+          onChange={setVisibleEventType}
+          checked={visibleEvents.value === 'future'}
+        />
         <div class="tabs">
           <label class="tab" id="past-tab" for="past">
             Past

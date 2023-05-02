@@ -1,5 +1,5 @@
 import { h } from 'preact'
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link, ScrollRestoration } from 'react-router-dom'
 import { CurrentUrlAsQRCode } from './_components/qr-url'
 export default function Root() {
   return (
@@ -15,6 +15,7 @@ export default function Root() {
 
       <div>footer</div>
       {/* <CurrentUrlAsQRCode /> */}
+      <ScrollRestoration />
     </>
   )
 }

@@ -123,19 +123,42 @@ export const loadClasses = async (competitionId: string): Promise<Classes> => {
   return result
 }
 
-export interface Classes {
+export interface Classresult {
   status: string
-  classes: Array<{
-    className: string
-  }>
+  className: string
+  splitcontrols: unknown
+  results: Array<Result>
   hash: string
+}
+export interface Result {
+  place: string
+  name: string
+  club: string
+  result: string
+  status: ResultStatus
+  timeplus: string
+  progress: number
+  start: number
+}
+export enum ResultStatus {
+  Ok = 0,
+  DidNotStart = 1,
+  DidNotFinish = 2,
+  MissingPunch = 3,
+  Disqualified = 4,
+  OverMaxTime = 5,
+  NotStartedYet1 = 9,
+  NotStartedYet2 = 10,
+  WalkOver = 11,
+  MovedUp = 12,
 }
 export const loadClassresults = async (
   competitionId: string,
-  className: string
-): Promise<Classresults> => {
+  className: string,
+  lastHash: string | undefined
+): Promise<Classresult> => {
   const result = await fetch(
-    `${BASE_URL}getclassresults&comp=${competitionId}&unformattedTimes=true&class=${className}`
+    `${BASE_URL}getclassresults&comp=${competitionId}&unformattedTimes=false&class=${className}&last_hash=${lastHash}`
   ).then((response) => response.json())
   return result
 }
